@@ -1,4 +1,4 @@
-# Mbrowser Lite
+# Mbrowser-lite
 
 Mbrowser Lite is an extremely fast and memory-efficient web browser powered by the specialized m-engine V1 core. Its primary goal is to deliver top-tier performance, high responsiveness, and stability under strict hardware resource constraints.
 
