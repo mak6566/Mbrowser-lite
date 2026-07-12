@@ -1,27 +1,27 @@
 # Mbrowser Lite
 
-Mbrowser Lite je extrémne rýchly a pamäťovo efektívny webový prehliadač poháňaný špecializovaným jadrom m-engine V1 [cite: 1]. Jeho primárnym cieľom je poskytnúť špičkový výkon, vysokú odozvu a stabilitu s minimálnymi hardvérovými nárokmi [cite: 1].
+Mbrowser Lite is an extremely fast and memory-efficient web browser powered by the specialized m-engine V1 core. Its primary goal is to deliver top-tier performance, high responsiveness, and stability under strict hardware resource constraints.
 
-## Systémové požiadavky a Ciele (KPI)
-* **Hardvérové minimum:** Plynulý beh vyžaduje zariadenie s aspoň 500 MB RAM [cite: 1].
-* **Spotreba po štarte (Cold Start):** Prehliadač je optimalizovaný tak, aby pri štarte zaberal len 25 MB RAM [cite: 1].
-* **Bežné prezeranie:** Priemerná spotreba pamäte pri vykresľovaní bežných webových stránok nepresahuje 50 MB RAM [cite: 1].
-* **Cieľové platformy:** Embedded zariadenia, staršie mobilné čipsety a limitované prostredia ako Termux [cite: 1].
+## System Requirements & Key Performance Indicators (KPI)
+* **Hardware Minimum:** Smooth execution requires a device with at least 500 MB of RAM.
+* **Cold Start Footprint:** Optimized to utilize a mere 25 MB of RAM upon initial startup.
+* **Standard Web Browsing:** Average memory consumption remains under 50 MB of RAM when rendering standard web content.
+* **Target Platforms:** Embedded architectures, older mobile chipsets, and restricted environments such as Termux.
 
-## Architektúra a Technológie
-Jadro prehliadača je kompletne vyvíjané v jazyku Rust, čo zabezpečuje absolútnu pamäťovú bezpečnosť a eliminuje potrebu použitia Garbage Collectora, čím sa šetria systémové zdroje [cite: 1].
+## Architecture & Core Tech Stack
+The browser core is written entirely in Rust, providing native memory safety without the runtime overhead of a Garbage Collector, significantly cutting down on resource usage.
 
-* **JavaScript Runtime:** Implementuje odľahčený QuickJS (bez JIT kompilátora), ktorý spotrebúva minimum pamäte (~1 MB RAM), pričom API volania sú riešené priamo cez natívne Rust bindings [cite: 1].
-* **Grafická vrstva:** Hardvérová akcelerácia je postavená na knižnici wgpu s viacfázovým spracovaním (Render Graph, Tile Caching) pre priamu integráciu s Vulkan, Metal a DirectX 12 [cite: 1].
-* **CSS a Layout:** Extrémnu rýchlosť parsovania štýlov zabezpečuje lightningcss a pre výpočet komplexnej geometrie (Flexbox, Grid) slúži vysoko optimalizovaný layout engine Taffy [cite: 1].
-* **Textový subsystém:** Integrácia knižnice cosmic-text pre moderný text shaping, font fallback a priame vykresľovanie na GPU [cite: 1].
-* **Dátový model DOM:** Využíva inovatívny Compact Flat Arena DOM založený na princípe Structure of Arrays (SoA), kde sú 64-bitové pointery nahradené 32-bitovými indexmi [cite: 1].
+* **JavaScript Runtime:** Implements a lightweight QuickJS instance (JIT-less) to maintain an exceptionally low memory baseline (~1 MB RAM), utilizing direct native Rust bindings for DOM manipulation and Web APIs.
+* **Graphics Pipeline:** Features hardware-accelerated rendering via `wgpu` with an advanced Render Graph and Tile Caching system targeting Vulkan, Metal, and DirectX 12 natively.
+* **CSS & Layout Engines:** Integrates `lightningcss` for high-throughput style tokenization alongside the `Taffy` layout engine for high-speed Flexbox and CSS Grid computations.
+* **Text Processing Subsystem:** Powered by `cosmic-text` to achieve full text shaping and robust font fallback functionality directly coupled with the GPU pipeline.
+* **Data Layer (DOM):** Avoids pointer-heavy OOP overhead by implementing a Compact Flat Arena DOM built on the Structure of Arrays (SoA) paradigm, replacing 64-bit pointers with 32-bit indices.
 
-## Kľúčové optimalizácie
-* **Adaptívny chod:** Pri štarte systém automaticky deteguje dostupné hardvérové prostriedky a alokuje jeden zo štyroch profilov (od Embedded po High) pre optimálne prispôsobenie výkonu a cache mechanizmov [cite: 1].
-* **Tiered Allocator System:** Mbrowser Lite obchádza štandardné systémové alokátory. Využíva tri dedikované úrovne (Slab, Arena, Direct mmap), vďaka čomu minimalizuje volania `malloc` a `free` v renderovacej slučke a úplne odstraňuje pamäťovú fragmentáciu [cite: 1].
-* **Multi-level CSS Matching:** Rýchle spracovanie kaskády využíva štruktúru Selector Trie spolu s inline Bloom filtrami, ktoré umožňujú validáciu prítomnosti tried v čase O(1) [cite: 1].
-* **Asynchrónne dekódovanie médií (Inline Resizing):** Pri dekódovaní obrázkov sa vykonáva streamovaný downscaling pomocou SIMD inštrukcií, takže obrázok sa načíta do RAM priamo v cieľovom rozlíšení, čím sa redukuje spotreba pamäte z desiatok megabajtov na zlomok tejto hodnoty [cite: 1].
+## Low-Level Optimizations
+* **Capability Profiles:** The system automatically detects host specifications at startup and applies one of four performance configurations (ranging from Embedded to High) to scale caching and internal concurrency behaviors dynamically.
+* **Tiered Allocator System:** Bypasses standard system allocators entirely for critical page structures. It maps data to three distinct strategies (Slab Allocator, Arena Allocator, and Direct OS mmap) to target zero `malloc` and `free` overhead within the main rendering loop.
+* **Multi-Level CSS Matching:** Employs a right-to-left Selector Trie coupled with highly compact inline Bloom filters to achieve O(1) parent class verification, pruning unmatched rules instantaneously.
+* **Asynchronous Inline Media Downscaling:** Streamed decoders for WebP, PNG, and JPEG formats process rows sequentially using SIMD instructions to resize assets down to their final layout boundaries during parsing, lowering uncompressed graphic allocation from dozens of megabytes down to hundreds of kilobytes.
 
-## Filozofia projektu
-Cieľom Mbrowser Lite nie je súťažiť s masívnymi jadrami v hrubom výpočtovom výkone na najdrahšom hardvéri, ale dosiahnuť bezkonkurenčnú pamäťovú a energetickú efektivitu [cite: 1]. Výsledkom je najlepší a najrýchlejší prehliadač pre nasadenie tam, kde tradičné riešenia zlyhávajú na nedostatok zdrojov.
+## Project Philosophy
+Mbrowser Lite is not designed to compete with heavy modern rendering engines in raw computing power on top-end multicore hardware; its purpose is to establish maximum memory and energy efficiency. The result is an uncompromisingly fast browser engineered explicitly for resource-constrained deployment environments.
